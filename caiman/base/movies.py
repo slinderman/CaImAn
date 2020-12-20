@@ -1357,7 +1357,7 @@ class movie(ts.timeseries):
 
                     # Correction for running in Colab notebook
                     from google.colab.patches import cv2_imshow
-                    cv2_imshow('frame', frame)
+                    cv2_imshow(frame)
                     if save_movie:
                         if frame.ndim < 3:
                             frame = np.repeat(frame[:, :, None], 3, axis=-1)
