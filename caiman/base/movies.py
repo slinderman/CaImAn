@@ -101,7 +101,7 @@ class movie(ts.timeseries):
            (type(input_arr) is h5py._hl.dataset.Dataset) or \
            ('mmap' in str(type(input_arr))) or \
            ('tifffile' in str(type(input_arr))):
-            return super().__new__(cls, input_arr, **kwargs)  
+            return super().__new__(cls, input_arr, **kwargs)
             #return super(movie, cls).__new__(cls, input_arr, **kwargs)
         else:
             raise Exception('Input must be an ndarray, use load instead!')
@@ -227,7 +227,7 @@ class movie(ts.timeseries):
         Disclaimer, it might change the object itself.
 
         Args:
-            max_shift,z,max_shift_w,max_shift_h: maximum pixel shifts allowed when 
+            max_shift,z,max_shift_w,max_shift_h: maximum pixel shifts allowed when
                     correcting in the axial, width, and height directions
 
             template: if a good template for frame by frame correlation exists
@@ -571,8 +571,8 @@ class movie(ts.timeseries):
         """
         t, h, w = self.shape
         self[:, :, :] = self[crop_begin:t - crop_end, crop_top:h - crop_bottom, crop_left:w - crop_right]
-    
-    def removeBL(self, windowSize:int=100, quantilMin:int=8, in_place:bool=False, returnBL:bool=False):                   
+
+    def removeBL(self, windowSize:int=100, quantilMin:int=8, in_place:bool=False, returnBL:bool=False):
         """
         Remove baseline from movie using percentiles over a window
         Args:
@@ -595,24 +595,24 @@ class movie(ts.timeseries):
         res = np.array(list(map(myperc,iter_win))).T
         if returnBL:
                 return cm.movie(cv2.resize(res,pixs.shape[::-1]),fr=self.fr).to3DFromPixelxTime(self.shape)
-        if (not in_place):            
+        if (not in_place):
             return (pixs-cv2.resize(res,pixs.shape[::-1])).to3DFromPixelxTime(self.shape)
         else:
-            self -= cm.movie(cv2.resize(res,pixs.shape[::-1]),fr=self.fr).to3DFromPixelxTime(self.shape) 
+            self -= cm.movie(cv2.resize(res,pixs.shape[::-1]),fr=self.fr).to3DFromPixelxTime(self.shape)
             return self
-    
+
     def to2DPixelxTime(self, order='F'):
         """
         Transform 3D movie into 2D
         """
-        return self.transpose([2,1,0]).reshape((-1,self.shape[0]),order=order)  
+        return self.transpose([2,1,0]).reshape((-1,self.shape[0]),order=order)
 
     def to3DFromPixelxTime(self, shape, order='F'):
         """
             Transform 2D movie into 3D
         """
         return to_3D(self,shape[::-1],order=order).transpose([2,1,0])
-    
+
     def computeDFF(self, secsWindow: int = 5, quantilMin: int = 8, method: str = 'only_baseline', in_place: bool = False,
                    order: str = 'F') -> Tuple[Any, Any]:
         """
@@ -659,7 +659,7 @@ class movie(ts.timeseries):
         #% compute baseline quickly
         logging.debug("binning data ...")
         sys.stdout.flush()
-        
+
         if not in_place:
             movBL = np.reshape(mov_out.copy(),
                                (downsampfact, int(old_div(numFramesNew, downsampfact)), linePerFrame, pixPerLine),
@@ -691,7 +691,7 @@ class movie(ts.timeseries):
                 raise Exception('Unknown method')
         else:
             mov_out = movBL
-            
+
         mov_out = mov_out[padbefore:len(movBL) - padafter, :, :]
         logging.debug('Final Size Movie:' + np.str(self.shape))
         return mov_out, movie(movBL,
@@ -843,15 +843,15 @@ class movie(ts.timeseries):
 
         Args:
             components (default 50) = number of independent components to return
-    
+
             batch (default 1000) = number of pixels to load into memory simultaneously in IPCA. More requires more memory but leads to better fit
-    
+
             mu (default 0.05) = parameter in range [0,1] for spatiotemporal ICA, higher mu puts more weight on spatial information
-    
+
             ICAFun (default = 'logcosh') = cdf to use for ICA entropy maximization
-    
+
             Plus all parameters from sklearn.decomposition.FastICA
-    
+
         Returns:
             ind_frames [components, height, width] = array of independent component "eigenframes"
         """
@@ -994,16 +994,16 @@ class movie(ts.timeseries):
 
         Args:
             tradeoff_weight:between 0 and 1 will weight the contributions of distance and correlation in the overall metric
-    
+
             fx,fy: downsampling factor to apply to the movie
-    
+
             n_clusters,max_iter: KMeans algorithm parameters
 
         Returns:
             fovs:array 2D encoding the partitions of the FOV
-    
+
             mcoef: matrix of pairwise correlation coefficients
-    
+
             distanceMatrix: matrix of picel distances
         """
         _, h1, w1 = self.shape
@@ -1355,7 +1355,9 @@ class movie(ts.timeseries):
                                     color=(255, 255, 255),
                                     thickness=1)
 
-                    cv2.imshow('frame', frame)
+                    # Correction for running in Colab notebook
+                    from google.colab.patches import cv2_imshow
+                    cv2_imshow('frame', frame)
                     if save_movie:
                         if frame.ndim < 3:
                             frame = np.repeat(frame[:, :, None], 3, axis=-1)
@@ -1460,13 +1462,13 @@ def load(file_name: Union[str, List[str]],
 
     Raises:
         Exception 'Subindices not implemented'
-    
+
         Exception 'Subindices not implemented'
-    
+
         Exception 'sima module unavailable'
-    
+
         Exception 'Unknown file type'
-    
+
         Exception 'File not found!'
     """
     # case we load movie from file
@@ -1787,12 +1789,12 @@ def load_movie_chain(file_list: List[str],
     Args:
         file_list: list
            file names in string format
-    
+
         the other parameters as in load_movie except
-    
+
         bottom, top, left, right, z_top, z_bottom : int
             to load only portion of the field of view
-    
+
         is3D : bool
             flag for 3d data (adds a fourth dimension)
 
@@ -2133,7 +2135,7 @@ def from_zipfiles_to_movie_lists(zipfile_name: str, max_frames_per_movie: int = 
     return movie_list
 
 
-def rolling_window(ndarr, window_size, stride):   
+def rolling_window(ndarr, window_size, stride):
         """
         generates efficient rolling window for running statistics
         Args:
@@ -2145,11 +2147,11 @@ def rolling_window(ndarr, window_size, stride):
                 stride of the sliding window
         Returns:
                 iterator with views of the input array
-                
+
         """
-        for i in range(0,ndarr.shape[-1]-window_size-stride+1,stride): 
+        for i in range(0,ndarr.shape[-1]-window_size-stride+1,stride):
             yield ndarr[:,i:np.minimum(i+window_size, ndarr.shape[-1])]
-            
+
         if i+stride != ndarr.shape[-1]:
            yield ndarr[:,i+stride:]
 
